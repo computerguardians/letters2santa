@@ -596,24 +596,50 @@
         </div>
 
         <!-- Social Section -->
-        <div class="social-section">
-            <p><strong>❤️ Know other families who'd love this magical experience?</strong></p>
-            <div class="social-links">
-                <a href="#" class="social-link">
-                    <span>📘</span>
-                    <span>Share on Facebook</span>
-                </a>
-                <a href="#" class="social-link">
-                    <span>💬</span>
-                    <span>Share on WhatsApp</span>
-                </a>
-            </div>
-        </div>
+     <!-- Social Section -->
+<div class="social-section">
+    <p><strong>❤️ Spread the Christmas Magic!</strong></p>
+    <p style="font-size: 13px; margin-bottom: 16px;">
+        Know other families who'd love this magical experience? Share Letters2Santa with them!
+    </p>
+    <div class="social-links">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(config('app.url')) }}"
+           class="social-link"
+           style="text-decoration: none;">
+            <span>📘</span>
+            <span>Share on Facebook</span>
+        </a>
+        <a href="https://wa.me/?text={{ urlencode('🎅 Check out Letters2Santa - Magical personalized Christmas storybooks for kids! Only $9.49 (68% OFF Launch Price!) ' . config('app.url')) }}"
+           class="social-link"
+           style="text-decoration: none;">
+            <span>💬</span>
+            <span>Share on WhatsApp</span>
+        </a>
+    </div>
+    <p style="font-size: 13px; margin-top: 16px; color: #2d5016;">
+        <strong>Follow us for updates & exclusive offers:</strong><br>
+        <a href="https://www.facebook.com/letters2santaofficial"
+           target="_blank"
+           rel="noopener noreferrer"
+           style="color: #1b5e20; text-decoration: none; margin: 0 8px;">
+            Facebook
+        </a>
+        |
+        <a href="https://www.instagram.com/letters2santaofficial"
+           target="_blank"
+           rel="noopener noreferrer"
+           style="color: #1b5e20; text-decoration: none; margin: 0 8px;">
+            Instagram
+        </a>
+        <br>
+        <span style="font-size: 12px; opacity: 0.8;">@letters2santaofficial</span>
+    </p>
+</div>
 
         <!-- Footer -->
         <div class="footer">
             <div class="footer-brand">🎅 Letters2Santa</div>
-            <div class="footer-tagline">Spreading Christmas Magic Since 2024</div>
+            <div class="footer-tagline">Spreading Christmas Magic Since 2025</div>
 
             <div class="footer-badges">
                 <span class="badge">🔒 Secure Payments</span>

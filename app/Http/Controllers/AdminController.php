@@ -12,13 +12,13 @@ class AdminController extends Controller
     // Simple password protection
     public function login(Request $request)
     {
-        if ($request->method() === 'POST') {
-            if ($request->input('password') === env('ADMIN_PASSWORD', 'letters2santa2024')) {
-                session(['admin_logged_in' => true]);
-                return redirect()->route('admin.dashboard');
-            }
-            return back()->with('error', 'Incorrect password');
-        }
+        // if ($request->method() === 'POST') {
+        //     if ($request->input('password') === env('ADMIN_PASSWORD', 'letters2santa2024')) {
+        //         session(['admin_logged_in' => true]);
+        //         return redirect()->route('admin.dashboard');
+        //     }
+        //     return back()->with('error', 'Incorrect password');
+        // }
 
         return view('admin.login');
     }

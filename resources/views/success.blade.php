@@ -140,24 +140,56 @@
             </div>
 
             <!-- Share Section -->
-            <div class="card mt-4" style="background: linear-gradient(135deg, #e8f5e9, #ffffff);">
-                <div class="card-body p-4 text-center">
-                    <h4 class="santa-font mb-3" style="color: var(--christmas-green);">
-                        <i class="fas fa-share-alt"></i> Spread the Christmas Magic!
-                    </h4>
-                    <p class="mb-3">
-                        Know other families who'd love this magical experience? Share Letters2Santa with them!
-                    </p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button class="btn btn-outline-christmas">
-                            <i class="fab fa-facebook"></i> Share on Facebook
-                        </button>
-                        <button class="btn btn-outline-christmas">
-                            <i class="fab fa-whatsapp"></i> Share on WhatsApp
-                        </button>
-                    </div>
-                </div>
-            </div>
+           <div class="card mt-4" style="background: linear-gradient(135deg, #e8f5e9, #ffffff);">
+    <div class="card-body p-4 text-center">
+        <h4 class="santa-font mb-3" style="color: var(--christmas-green);">
+            <i class="fas fa-share-alt"></i> Spread the Christmas Magic!
+        </h4>
+        <p class="mb-3">
+            Know other families who'd love this magical experience? Share Letters2Santa with them!
+        </p>
+
+        <!-- Share Buttons -->
+        <div class="d-flex gap-2 justify-content-center flex-wrap mb-3">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-outline-christmas">
+                <i class="fab fa-facebook"></i> Share on Facebook
+            </a>
+            <a href="https://wa.me/?text={{ urlencode('🎅 Check out Letters2Santa - Magical personalized Christmas storybooks for kids! Only $9.49 (68% OFF Launch Price!) ' . url()->current()) }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-outline-christmas">
+                <i class="fab fa-whatsapp"></i> Share on WhatsApp
+            </a>
+        </div>
+
+        <!-- Social Media Links -->
+        <p class="mb-2 text-muted" style="font-size: 0.9rem;">
+            <strong>Follow us for updates & exclusive offers:</strong>
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="https://www.facebook.com/letters2santaofficial"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-decoration-none"
+               style="color: var(--christmas-green); font-size: 1.5rem;">
+                <i class="fab fa-facebook-square"></i>
+            </a>
+            <a href="https://www.instagram.com/letters2santaofficial"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="text-decoration-none"
+               style="color: var(--christmas-green); font-size: 1.5rem;">
+                <i class="fab fa-instagram"></i>
+            </a>
+        </div>
+        <p class="mb-0 mt-2" style="font-size: 0.85rem; color: #666;">
+            @letters2santaofficial
+        </p>
+    </div>
+</div>
         </div>
     </div>
 @endsection

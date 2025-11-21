@@ -58,7 +58,7 @@ Share Letters2Santa: {{ config('app.url') }}
 ---
 
 🎅 Letters2Santa
-Spreading Christmas Magic Since 2024
+Spreading Christmas Magic 2025
 
 🔒 Secure Payments | 🛡️ Privacy Protected | ❤️ Supporting Charity
 
