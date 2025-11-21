@@ -36,15 +36,17 @@ info('store image');
     \Log::info('All input fields:', $request->except('child_photo'));
     // END DEBUG CODE
 
-        $validated = $request->validate([
-            'child_name' => 'required|string|max:255',
-            'age_range' => 'required|in:3-5,6-8,9-12',
-            'message_to_santa' => 'required|string|max:1000',
-            'parent_name' => 'required|string|max:255',
-            'parent_email' => 'required|email|max:255',
-            'parent_mobile' => 'required|string|max:20',
-            'child_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120', // 5MB max
-        ]);
+      $validated = $request->validate([
+    'child_name' => 'required|string|max:255',
+    'age_range' => 'required|in:3-5,6-8,9-12',
+    'message_to_santa' => 'required|string|max:1000',
+    'parent_name' => 'required|string|max:255',
+    'parent_email' => 'required|email|max:255',
+    'parent_mobile' => 'required|string|max:20',
+    'timezone' => 'required|string|max:100',  // Add this line
+    'child_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:5120',
+    'accept_terms' => 'required|accepted',
+]);
 
   // Handle photo upload to S3
     $photoPath = null;
@@ -71,6 +73,7 @@ info('store image');
             'parent_email' => $validated['parent_email'],
             'parent_mobile' => $validated['parent_mobile'],
             'child_photo' => $photoPath,
+            'timezone' =>  $validated['timezone'],
             'payment_status' => 'pending',
         ]);
 

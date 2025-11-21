@@ -20,6 +20,7 @@ class Letter extends Model
     'amount',
     'payment_status',
     'delivery_status',
+    'timezone',
     'delivered_at',
     ];
 

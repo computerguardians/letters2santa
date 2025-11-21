@@ -101,6 +101,27 @@
                             </small>
                         </div>
 
+                        <!-- Timezone Selection -->
+                        <div class="mb-5">
+                            <label for="timezone" class="form-label fw-bold">
+                                <i class="fas fa-clock"></i> Your Timezone <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                class="form-select form-select-lg @error('timezone') is-invalid @enderror"
+                                id="timezone"
+                                name="timezone"
+                                required
+                            >
+                                <option value="">Detecting your timezone...</option>
+                            </select>
+                            @error('timezone')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> Used to deliver your storybook at the right time on Christmas morning
+                            </small>
+                        </div>
+
                         <!-- Parent's Information -->
                         <div class="mb-4">
                             <h3 class="santa-font" style="color: var(--christmas-green);">
@@ -232,7 +253,81 @@
     <!-- International Telephone Input JS -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@19.5.6/build/js/intlTelInput.min.js"></script>
 
+    <!-- Moment.js (required base library) -->
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <!-- Moment Timezone JS -->
+    <script src="https://cdn.jsdelivr.net/npm/moment-timezone@0.5.43/builds/moment-timezone-with-data.min.js"></script>
+
     <script>
+        // Timezone initialization - wait for moment to load
+        function initializeTimezones() {
+            // Check if moment is loaded
+            if (typeof moment === 'undefined' || !moment.tz) {
+                setTimeout(initializeTimezones, 100);
+                return;
+            }
+
+            const timezoneSelect = document.getElementById('timezone');
+            const userTimezone = moment.tz.guess();
+
+            // Get all timezones
+            const timezones = moment.tz.names();
+
+            // Popular timezones first
+            const popularTimezones = [
+                'Australia/Sydney',
+                'Australia/Melbourne',
+                'Australia/Brisbane',
+                'America/New_York',
+                'America/Los_Angeles',
+                'America/Chicago',
+                'Europe/London',
+                'Europe/Paris',
+                'Asia/Singapore',
+                'Asia/Tokyo'
+            ];
+
+            // Clear loading option
+            timezoneSelect.innerHTML = '';
+
+            // Add popular timezones
+            const popularGroup = document.createElement('optgroup');
+            popularGroup.label = 'Popular Timezones';
+            popularTimezones.forEach(tz => {
+                const option = document.createElement('option');
+                option.value = tz;
+                option.textContent = tz.replace(/_/g, ' ') + ' (' + moment.tz(tz).format('z') + ')';
+                if (tz === userTimezone) {
+                    option.selected = true;
+                }
+                popularGroup.appendChild(option);
+            });
+            timezoneSelect.appendChild(popularGroup);
+
+            // Add all timezones
+            const allGroup = document.createElement('optgroup');
+            allGroup.label = 'All Timezones';
+            timezones.forEach(tz => {
+                if (!popularTimezones.includes(tz)) {
+                    const option = document.createElement('option');
+                    option.value = tz;
+                    option.textContent = tz.replace(/_/g, ' ');
+                    if (tz === userTimezone) {
+                        option.selected = true;
+                    }
+                    allGroup.appendChild(option);
+                }
+            });
+            timezoneSelect.appendChild(allGroup);
+        }
+
+        // Start initialization when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeTimezones);
+        } else {
+            initializeTimezones();
+        }
+
         // Initialize intl-tel-input
         const phoneInput = document.querySelector("#parent_mobile");
         const iti = window.intlTelInput(phoneInput, {

@@ -59,7 +59,7 @@
 
         <div class="detail-card">
             <h3 class="mb-4"><i class="fas fa-envelope-open-text"></i> Letter Details</h3>
-            
+
             <div class="detail-row">
                 <span class="detail-label">Order ID:</span>
                 <code style="font-size: 1.1rem;">{{ $letter->order_id }}</code>
@@ -73,6 +73,11 @@
             <div class="detail-row">
                 <span class="detail-label">Age Range:</span>
                 {{ $letter->age_range }} years old
+            </div>
+
+                    <div class="detail-row">
+                <span class="detail-label">Timezone:</span>
+                {{ $letter->timezone }}
             </div>
 
             <div class="detail-row">
