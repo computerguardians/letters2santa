@@ -122,3 +122,11 @@ Route::redirect('/register', '/login');
 
 // Black Friday Special Page
 Route::get('/black-friday', [LetterController::class, 'blackFriday'])->name('black-friday');
+
+Route::get('/robots.txt', function () {
+    $robots = app()->environment('production')
+        ? "User-agent: *\nAllow: /\nSitemap: " . url('sitemap.xml')
+        : "User-agent: *\nDisallow: /";
+
+    return response($robots)->header('Content-Type', 'text/plain');
+});

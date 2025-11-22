@@ -15,6 +15,12 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <style>
         :root {
             --christmas-red: #C41E3A;
@@ -136,7 +142,29 @@
         }
     </style>
 
+
+
     @yield('extra-css')
+
+    @if (config('services.google_analytics.id'))
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.id') }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', '{{ config('services.google_analytics.id') }}');
+        </script>
+    @endif
+
+    @production
+        <meta name="robots" content="index, follow">
+    @else
+        <meta name="robots" content="noindex, nofollow">
+    @endproduction
 </head>
 
 <body>
