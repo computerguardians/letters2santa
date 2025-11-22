@@ -457,7 +457,7 @@
                     </div>
 
                     <p class="mt-3 mb-0" style="opacity: 0.8;">
-                        <small><i class="fas fa-clock"></i> Limited Time: Nov 29 - Dec 2, 2024</small>
+                        <small><i class="fas fa-clock"></i> Limited Time: Nov 29 - Dec 2, 2025</small>
                     </p>
                 </div>
             </div>
@@ -496,7 +496,7 @@
 @section('extra-js')
 <script>
 // Black Friday countdown timer
-const blackFridayEnd = new Date('2024-12-02T23:59:59').getTime();
+const blackFridayEnd = new Date('2025-12-02T23:59:59').getTime();
 
 function updateBFCountdown() {
     const now = new Date().getTime();

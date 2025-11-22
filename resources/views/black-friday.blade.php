@@ -210,7 +210,7 @@
     </h1>
     <p class="lead mb-4">
         FREE Personalized E-Books for Every Child!<br>
-        Limited Time: November 29 - December 2, 2024
+        Limited Time: November 29 - December 2, 2025
     </p>
 
     <!-- Countdown Timer -->
@@ -413,7 +413,7 @@
                 </h3>
                 <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">
-                        This special offer is valid from November 29 - December 2, 2024 only. After that, prices return to normal ($29.49 regular).
+                        This special offer is valid from November 29 - December 2, 2025 only. After that, prices return to normal ($29.49 regular).
                     </div>
                 </div>
             </div>
@@ -437,7 +437,7 @@
 <!-- Countdown Timer Script -->
 <script>
 // Set Black Friday end date
-const blackFridayEnd = new Date('2024-12-02T23:59:59').getTime();
+const blackFridayEnd = new Date('2025-12-02T23:59:59').getTime();
 
 function updateCountdown() {
     const now = new Date().getTime();
