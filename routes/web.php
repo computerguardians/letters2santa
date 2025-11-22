@@ -118,3 +118,7 @@ Route::post('/webhook/test', function(Request $request) {
 });
 
 Route::redirect('/register', '/login');
+
+
+// Black Friday Special Page
+Route::get('/black-friday', [LetterController::class, 'blackFriday'])->name('black-friday');

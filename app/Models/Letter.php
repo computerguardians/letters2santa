@@ -21,6 +21,7 @@ class Letter extends Model
     'payment_status',
     'delivery_status',
     'timezone',
+    'tier',
     'delivered_at',
     ];
 

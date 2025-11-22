@@ -29,7 +29,7 @@ class LetterConfirmation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎅 Santa Has Received ' . $this->letter->child_name . '\'s Letter!',
+            subject: $this->getSubject(),
         );
     }
 
@@ -40,7 +40,6 @@ class LetterConfirmation extends Mailable
     {
         return new Content(
             view: 'emails.letter-confirmation',
-            text: 'emails.letter-confirmation-text',
         );
     }
 
@@ -52,5 +51,17 @@ class LetterConfirmation extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    /**
+     * Get the email subject based on tier
+     */
+    private function getSubject(): string
+    {
+        if ($this->letter->tier === 'free') {
+            return '🎅 Your FREE Christmas E-Book is Confirmed! - Letters2Santa';
+        }
+
+        return '🎅 Payment Confirmed - Christmas Magic Coming Soon! - Letters2Santa';
     }
 }

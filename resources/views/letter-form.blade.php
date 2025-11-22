@@ -13,6 +13,25 @@
         .iti__flag-container {
             padding-right: 12px;
         }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .tier-badge.free {
+            background: linear-gradient(135deg, var(--christmas-green), #0d472a);
+            color: white;
+        }
+
+        .tier-badge.premium {
+            background: linear-gradient(135deg, var(--christmas-red), #a01828);
+            color: white;
+        }
     </style>
 @endsection
 
@@ -22,6 +41,12 @@
             <div class="card">
                 <div class="card-body p-5">
                     <div class="text-center mb-5">
+                        @if(request('tier') === 'free')
+                            <span class="tier-badge free">✨ FREE BASIC TIER</span>
+                        @elseif(request('tier') === 'premium')
+                            <span class="tier-badge premium">⭐ PREMIUM TIER</span>
+                        @endif
+
                         <h1 class="santa-font" style="color: var(--christmas-red); font-size: 3rem;">
                             <i class="fas fa-envelope-open-text"></i> Write to Santa
                         </h1>
@@ -32,6 +57,9 @@
 
                     <form method="POST" action="{{ route('letter.store') }}" id="letterForm" enctype="multipart/form-data">
                         @csrf
+
+                        <!-- Hidden tier field -->
+                        <input type="hidden" name="tier" value="{{ request('tier', 'premium') }}">
 
                         <!-- Child's Information -->
                         <div class="mb-4">
@@ -86,9 +114,11 @@
                             </small>
                         </div>
 
+                        <!-- Photo Upload - Only for PREMIUM tier -->
+                        @if(request('tier') === 'premium')
                         <div class="mb-5">
                             <label for="child_photo" class="form-label fw-bold">
-                                <i class="fas fa-camera"></i> Child's Photo
+                                <i class="fas fa-camera"></i> Child's Photo <span class="text-danger">*</span>
                             </label>
                             <input type="file" class="form-control @error('child_photo') is-invalid @enderror" id="child_photo" name="child_photo" accept="image/jpeg,image/jpg,image/png" required>
                             @error('child_photo')
@@ -96,10 +126,11 @@
                             @enderror
                             <small class="form-text text-muted">
                                 <i class="fas fa-magic"></i> Upload a photo and we'll create a <strong>cartoon version</strong> of your child to appear in the story!<br>
-                                <i class="fas fa-shield-alt"></i> <strong>100% Secure:</strong> Photo is automatically deleted after the e-book is sent.<br>
+                                <i class="fas fa-shield-alt"></i> <strong>100% Secure:</strong> Photo is automatically deleted after 7 days.<br>
                                 <i class="fas fa-info-circle"></i> Accepted formats: JPG, PNG (Max 5MB)
                             </small>
                         </div>
+                        @endif
 
                         <!-- Timezone Selection -->
                         <div class="mb-5">
@@ -156,7 +187,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <small class="form-text text-muted">
-                                We'll send a confirmation and backup copy here
+                                We'll send a confirmation and your e-book here
                             </small>
                         </div>
 
@@ -170,7 +201,6 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                             <small class="form-text text-muted">
-
                                 <i class="fas fa-info-circle"></i> Country detected automatically - you can change it if needed
                             </small>
                         </div>
@@ -182,7 +212,7 @@
                             We never share your details with third parties. Read our <a href="{{ route('privacy') }}" target="_blank">Privacy Policy</a>.
                         </div>
 
-                        <!-- Payment Summary -->
+                        <!-- Payment Summary - Dynamic based on tier -->
                         <div class="card mb-4" style="background: linear-gradient(135deg, #fff8dc, #ffffff);">
                             <div class="card-body p-4">
                                 <h4 class="santa-font mb-3" style="color: var(--christmas-red);">
@@ -190,17 +220,33 @@
                                 </h4>
                                 <ul class="list-unstyled mb-3">
                                     <li><i class="fas fa-check text-success"></i> Personalised Christmas E-Book</li>
-                                    <li><i class="fas fa-check text-success"></i> Printable Certificate</li>
                                     <li><i class="fas fa-check text-success"></i> Letter from Santa</li>
-
+                                    @if(request('tier') === 'premium')
+                                        <li><i class="fas fa-check text-success"></i> Cartoon Photo of Your Child</li>
+                                        <li><i class="fas fa-check text-success"></i> Printable Certificate</li>
+                                        <li><i class="fas fa-check text-success"></i> Premium Story Version</li>
+                                    @endif
                                 </ul>
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <span class="h5 mb-0">Total:</span>
-                                    <span class="h3 mb-0 santa-font" style="color: var(--christmas-red);">
-                                        $9.49 AUD
-                                    </span>
+                                    @if(request('tier') === 'free')
+                                        <span class="h3 mb-0 santa-font" style="color: var(--christmas-green);">
+                                            FREE
+                                        </span>
+                                    @else
+                                        <span class="h3 mb-0 santa-font" style="color: var(--christmas-red);">
+                                            $4.99 AUD
+                                        </span>
+                                    @endif
                                 </div>
+                                @if(request('tier') === 'premium')
+                                    <div class="text-center mt-2">
+                                        <small class="text-muted">
+                                            Black Friday Special - Regular price $9.49
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -215,16 +261,29 @@
 
                         <!-- Submit Button -->
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-christmas btn-lg">
-                                <i class="fas fa-lock"></i> Proceed to Secure Payment
-                            </button>
+                            @if(request('tier') === 'free')
+                                <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, var(--christmas-green), #0d472a); color: white; border-radius: 50px;">
+                                    <i class="fas fa-gift"></i> Get My FREE E-Book
+                                </button>
+                            @else
+                                <button type="submit" class="btn btn-christmas btn-lg">
+                                    <i class="fas fa-lock"></i> Proceed to Secure Payment - $4.99
+                                </button>
+                            @endif
                         </div>
 
                         <div class="text-center mt-3">
-                            <small class="text-muted">
-                                <i class="fas fa-credit-card"></i>
-                                Secure payment powered by Stripe
-                            </small>
+                            @if(request('tier') === 'premium')
+                                <small class="text-muted">
+                                    <i class="fas fa-credit-card"></i>
+                                    Secure payment powered by Stripe
+                                </small>
+                            @else
+                                <small class="text-muted">
+                                    <i class="fas fa-gift"></i>
+                                    No payment required • Delivered Christmas Day
+                                </small>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -234,7 +293,7 @@
             <div class="row mt-4">
                 <div class="col-md-4 text-center mb-3">
                     <i class="fas fa-lock" style="font-size: 2rem; color: white;"></i>
-                    <p class="text-white mt-2 mb-0"><small><strong>Secure Payment</strong></small></p>
+                    <p class="text-white mt-2 mb-0"><small><strong>Secure {{ request('tier') === 'premium' ? 'Payment' : 'Process' }}</strong></small></p>
                 </div>
                 <div class="col-md-4 text-center mb-3">
                     <i class="fas fa-shield-alt" style="font-size: 2rem; color: white;"></i>
@@ -242,7 +301,7 @@
                 </div>
                 <div class="col-md-4 text-center mb-3">
                     <i class="fas fa-heart" style="font-size: 2rem; color: white;"></i>
-                    <p class="text-white mt-2 mb-0"><small><strong>Supporting Charity</strong></small></p>
+                    <p class="text-white mt-2 mb-0"><small><strong>Christmas Magic</strong></small></p>
                 </div>
             </div>
         </div>
@@ -259,6 +318,9 @@
     <script src="https://cdn.jsdelivr.net/npm/moment-timezone@0.5.43/builds/moment-timezone-with-data.min.js"></script>
 
     <script>
+        // Get tier from form
+        const tier = document.querySelector('input[name="tier"]').value;
+
         // Timezone initialization - wait for moment to load
         function initializeTimezones() {
             // Check if moment is loaded
@@ -407,7 +469,8 @@
             }
         });
 
-        // Photo preview
+        // Photo preview - only if premium tier
+        @if(request('tier') === 'premium')
         document.getElementById('child_photo').addEventListener('change', function(e) {
             const file = e.target.files[0];
 
@@ -453,5 +516,6 @@
                 reader.readAsDataURL(file);
             }
         });
+        @endif
     </script>
 @endsection
