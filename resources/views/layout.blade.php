@@ -146,19 +146,16 @@
 
     @yield('extra-css')
 
-    @if (config('services.google_analytics.id'))
-        <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_analytics.id') }}"></script>
-        <script>
-            window.dataLayer = window.dataLayer || [];
-
-            function gtag() {
-                dataLayer.push(arguments);
-            }
-            gtag('js', new Date());
-            gtag('config', '{{ config('services.google_analytics.id') }}');
-        </script>
-    @endif
+ @production
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JC6L940C7T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-JC6L940C7T');
+</script>
+@endproduction
 
     @production
         <meta name="robots" content="index, follow">
