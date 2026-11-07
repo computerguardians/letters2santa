@@ -27,6 +27,14 @@
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="UPLOADS_DISK" value="local"/>
+        <env name="REKOGNITION_ENABLED" value="false"/>
+        <env name="STRIPE_WEBHOOK_SECRET" value="whsec_test_secret"/>
+        <env name="STRIPE_SECRET" value="sk_test_dummy"/>
+        <env name="TURNSTILE_SECRET_KEY" value=""/>
+        <env name="SANTA_DATE" value="2026-12-25"/>
+        <env name="SANTA_CUTOFF_AT" value="2026-12-24 18:00"/>
+        <env name="SANTA_CUTOFF_TZ" value="Australia/Sydney"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>

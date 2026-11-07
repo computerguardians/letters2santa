@@ -33,12 +33,21 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'timezone' => ['nullable', 'string', 'timezone:all'],
+            'is_adult' => ['accepted'],
+            'terms' => ['accepted'],
+        ], [
+            'is_adult.accepted' => 'You must be 18 or over to create an account.',
+            'terms.accepted' => 'Please accept the terms and privacy policy.',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => \App\Enums\UserRole::Parent,
+            'timezone' => $request->input('timezone') ?: config('letters.default_timezone'),
+            'terms_accepted_at' => now(),
         ]);
 
         event(new Registered($user));

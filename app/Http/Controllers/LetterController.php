@@ -2,276 +2,109 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\LetterSource;
+use App\Enums\PaymentStatus;
+use App\Http\Requests\StoreLetterRequest;
 use App\Models\Letter;
-use App\Mail\LetterConfirmation;
+use App\Services\ImageService;
+use App\Services\SantaScheduler;
+use App\Support\Countries;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class LetterController extends Controller
 {
-    public function index()
+    public function index(Request $request): View
     {
-        return view('home');
-    }
+        $letters = $request->user()->letters()->with('images')->latest()->get();
 
-    public function create(Request $request)
-    {
-        // Get tier from query parameter (free or premium)
-        $tier = $request->get('tier', 'premium');
-
-        return view('letter-form', compact('tier'));
-    }
-
-    public function store(Request $request)
-    {
-        info('store image');
-
-        // ADD THIS DEBUG CODE
-        \Log::info('=== FORM SUBMITTED ===');
-        \Log::info('Tier: ' . $request->input('tier', 'premium'));
-        \Log::info('Has file: ' . ($request->hasFile('child_photo') ? 'YES' : 'NO'));
-        if ($request->hasFile('child_photo')) {
-            \Log::info('File name: ' . $request->file('child_photo')->getClientOriginalName());
-            \Log::info('File size: ' . $request->file('child_photo')->getSize() . ' bytes');
-            \Log::info('File mime: ' . $request->file('child_photo')->getMimeType());
-        }
-        \Log::info('All input fields:', $request->except('child_photo'));
-        // END DEBUG CODE
-
-        // Get tier from request
-        $tier = $request->input('tier', 'premium');
-        $isFree = ($tier === 'free');
-
-        // Validation rules vary based on tier
-        $rules = [
-            'child_name' => 'required|string|max:255',
-            'age_range' => 'required|in:3-5,6-8,9-12',
-            'message_to_santa' => 'required|string|max:1000',
-            'parent_name' => 'required|string|max:255',
-            'parent_email' => 'required|email|max:255',
-            'parent_mobile' => 'required|string|max:20',
-            'timezone' => 'required|string|max:100',
-            'accept_terms' => 'required|accepted',
-            'tier' => 'required|in:free,premium',
-        ];
-
-        // Photo is REQUIRED for premium, NOT required for free
-        if ($tier === 'premium') {
-            $rules['child_photo'] = 'required|image|mimes:jpeg,jpg,png|max:5120';
-        } else {
-            $rules['child_photo'] = 'nullable|image|mimes:jpeg,jpg,png|max:5120';
-        }
-
-        $validated = $request->validate($rules);
-
-        // Handle photo upload to S3 (only for premium or if provided)
-        $photoPath = null;
-        if ($request->hasFile('child_photo')) {
-            $file = $request->file('child_photo');
-            $fileName = 'letters/' . uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-
-            // Upload to S3
-            Storage::disk('s3')->put($fileName, file_get_contents($file));
-            $photoPath = $fileName;
-
-            \Log::info('S3 upload successful! Path: ' . $photoPath);
-        } else {
-            \Log::info('No file uploaded (tier: ' . $tier . ')');
-        }
-
-        // Create the letter record
-        $letter = Letter::create([
-            'order_id' => Letter::generateOrderId(),
-            'child_name' => $validated['child_name'],
-            'age_range' => $validated['age_range'],
-            'message_to_santa' => $validated['message_to_santa'],
-            'parent_name' => $validated['parent_name'],
-            'parent_email' => $validated['parent_email'],
-            'parent_mobile' => $validated['parent_mobile'],
-            'child_photo' => $photoPath,
-            'timezone' => $validated['timezone'],
-            'tier' => $tier,
-            'payment_status' => $isFree ? 'free' : 'pending',
+        return view('letters.index', [
+            'letters' => $letters,
+            'unpaidCount' => $letters->where('payment_status', PaymentStatus::Pending)->count(),
         ]);
+    }
 
-        // If FREE tier - skip payment and go straight to success
-        if ($isFree) {
-            \Log::info('FREE tier - skipping payment, order ID: ' . $letter->order_id);
+    public function create(Request $request, SantaScheduler $scheduler): View
+    {
+        return view('letters.create', [
+            'countries' => Countries::options(),
+            'afterCutoff' => $scheduler->isAfterCutoff(),
+            'defaultCountry' => $request->user()->letters()->latest()->value('country_code') ?? 'AU',
+            'lastTown' => $request->user()->letters()->latest()->value('town'),
+            'price' => config('letters.letter_price_cents') / 100,
+        ]);
+    }
 
-            // Send confirmation email immediately for free tier
-            try {
-                Mail::to($letter->parent_email)->send(new LetterConfirmation($letter));
-                \Log::info('Confirmation email sent for free tier to: ' . $letter->parent_email);
-            } catch (\Exception $e) {
-                \Log::error('Failed to send free tier confirmation email: ' . $e->getMessage());
-            }
+    public function store(StoreLetterRequest $request, ImageService $images): RedirectResponse
+    {
+        $user = $request->user();
+        $data = $request->validated();
 
-            return redirect()->route('letter.success', ['order_id' => $letter->order_id]);
-        }
-
-        // PREMIUM tier - Create Stripe Checkout Session
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        try {
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'aud',
-                        'product_data' => [
-                            'name' => 'Letters2Santa - Premium Package (Black Friday)',
-                            'description' => "Premium personalized storybook for {$letter->child_name} (Age {$letter->age_range}) - includes cartoon photo!",
-                        ],
-                        'unit_amount' => 499, // $4.99 in cents (Black Friday price)
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => route('letter.success', ['order_id' => $letter->order_id]),
-                'cancel_url' => route('letter.create', ['tier' => 'premium']),
-                'client_reference_id' => $letter->order_id,
-                'customer_email' => $letter->parent_email,
-                'metadata' => [
-                    'order_id' => $letter->order_id,
-                    'child_name' => $letter->child_name,
-                    'tier' => 'premium',
-                ],
+        $letter = DB::transaction(function () use ($user, $data, $request, $images) {
+            $letter = Letter::create([
+                'user_id' => $user->id,
+                'parent_email' => $user->email,
+                'parent_name' => $user->name,
+                'child_first_name' => $data['child_first_name'],
+                'child_age' => $data['child_age'] ?? null,
+                'town' => $data['town'],
+                'country_code' => $data['country_code'],
+                'body' => filled($data['body'] ?? null) ? trim($data['body']) : null,
+                'timezone' => $user->timezone ?: config('letters.default_timezone'),
+                'source' => LetterSource::Individual,
+                'payment_status' => PaymentStatus::Pending,
+                'wall_consent' => (bool) ($data['wall_consent'] ?? false),
+                'instagram_consent' => (bool) ($data['instagram_consent'] ?? false),
+                'guardian_confirmed' => true,
+                'consent_at' => now(),
+                'ip_hash' => hash('sha256', $request->ip().config('app.key')),
             ]);
 
-            // Save the session ID
-            $letter->update([
-                'stripe_checkout_session_id' => $session->id,
-            ]);
-
-            return redirect($session->url);
-
-        } catch (\Exception $e) {
-            \Log::error('Stripe error: ' . $e->getMessage());
-            return back()->with('error', 'Payment system error. Please try again.');
-        }
-    }
-
-    public function success(Request $request)
-    {
-        $orderId = $request->get('order_id');
-        $letter = Letter::where('order_id', $orderId)->firstOrFail();
-
-        return view('success', compact('letter'));
-    }
-
-    public function webhook(Request $request)
-    {
-        // Log that webhook was called
-        \Log::info('=== STRIPE WEBHOOK RECEIVED ===');
-        \Log::info('Headers: ', $request->headers->all());
-        \Log::info('Raw Body: ' . $request->getContent());
-
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        $endpoint_secret = config('services.stripe.webhook_secret');
-
-        // Check if webhook secret is configured
-        if (empty($endpoint_secret)) {
-            \Log::error('STRIPE_WEBHOOK_SECRET is not set in .env file!');
-            return response()->json(['error' => 'Webhook secret not configured'], 500);
-        }
-
-        $payload = $request->getContent();
-        $sig_header = $request->header('Stripe-Signature');
-
-        if (empty($sig_header)) {
-            \Log::error('No Stripe-Signature header found in request');
-            return response()->json(['error' => 'No signature header'], 400);
-        }
-
-        try {
-            $event = \Stripe\Webhook::constructEvent($payload, $sig_header, $endpoint_secret);
-            \Log::info('Webhook signature verified successfully');
-            \Log::info('Event type: ' . $event->type);
-        } catch (\UnexpectedValueException $e) {
-            // Invalid payload
-            \Log::error('Invalid webhook payload: ' . $e->getMessage());
-            return response()->json(['error' => 'Invalid payload'], 400);
-        } catch (\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            \Log::error('Invalid webhook signature: ' . $e->getMessage());
-            return response()->json(['error' => 'Invalid signature'], 400);
-        }
-
-        // Handle the event
-        if ($event->type === 'checkout.session.completed') {
-            \Log::info('Processing checkout.session.completed event');
-
-            $session = $event->data->object;
-            \Log::info('Session ID: ' . $session->id);
-
-            // Update the letter payment status
-            $letter = Letter::where('stripe_checkout_session_id', $session->id)->first();
-
-            if ($letter) {
-                \Log::info('Found letter with order ID: ' . $letter->order_id);
-
-                $letter->update([
-                    'payment_status' => 'completed',
-                    'stripe_payment_intent_id' => $session->payment_intent,
-                ]);
-
-                \Log::info('Letter payment status updated to completed');
-
-                // Send confirmation email
-                try {
-                    Mail::to($letter->parent_email)->send(new LetterConfirmation($letter));
-                    \Log::info('Confirmation email sent to: ' . $letter->parent_email);
-                } catch (\Exception $e) {
-                    // Log error but don't fail the webhook
-                    \Log::error('Failed to send confirmation email: ' . $e->getMessage());
-                }
-            } else {
-                \Log::warning('No letter found for session ID: ' . $session->id);
+            foreach (array_filter((array) $request->file('images', [])) as $file) {
+                $images->store($file, $letter);
             }
-        } else {
-            \Log::info('Ignoring event type: ' . $event->type);
-        }
 
-        \Log::info('=== WEBHOOK PROCESSING COMPLETE ===');
-        return response()->json(['status' => 'success']);
+            return $letter;
+        });
+
+        return redirect()->route('checkout.show')
+            ->with('status', "{$letter->child_first_name}'s letter is ready. Add another child or continue to payment.");
     }
 
-    public function checkOrder()
+    public function destroy(Request $request, Letter $letter): RedirectResponse
     {
-        return view('order-check');
+        abort_unless($letter->user_id === $request->user()->id, 403);
+
+        DB::transaction(function () use ($letter) {
+            foreach ($letter->images as $image) {
+                $image->deleteFiles();
+                $image->delete();
+            }
+            $letter->forceFill([
+                'body' => null,
+                'content_purged_at' => now(),
+                'wall_consent' => false,
+                'instagram_consent' => false,
+                'consent_withdrawn_at' => $letter->consent_withdrawn_at ?? now(),
+            ])->save();
+            $letter->delete();
+        });
+
+        return redirect()->route('letters.index')->with('status', 'The letter has been deleted.');
     }
 
-    public function verifyOrder(Request $request)
+    public function withdrawConsent(Request $request, Letter $letter): RedirectResponse
     {
-        $validated = $request->validate([
-            'order_id' => 'required|string',
-            'parent_email' => 'required|email',
-        ]);
+        abort_unless($letter->user_id === $request->user()->id, 403);
 
-        // Find the letter by order_id and email
-        $letter = Letter::where('order_id', $validated['order_id'])
-                        ->where('parent_email', $validated['parent_email'])
-                        ->first();
+        $letter->forceFill([
+            'wall_consent' => false,
+            'instagram_consent' => false,
+            'consent_withdrawn_at' => now(),
+        ])->save();
 
-        if (!$letter) {
-            return back()
-                ->withInput()
-                ->with('error', 'Order not found. Please check your Order ID and email address.');
-        }
-
-        // Show order status
-        return view('order-status', compact('letter'));
-    }
-
-    /**
-     * Show the Black Friday special page
-     */
-    public function blackFriday()
-    {
-        return view('black-friday');
+        return back()->with('status', "Consent withdrawn. {$letter->child_first_name}'s letter will no longer be shown publicly.");
     }
 }
