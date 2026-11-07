@@ -69,10 +69,10 @@ class LettersTable
                 BulkActionGroup::make([
                     BulkAction::make('approve')->label('Approve selected')->icon('heroicon-o-check')->color('success')
                         ->requiresConfirmation()->deselectRecordsAfterCompletion()
-                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($r, ModerationStatus::Approved))),
+                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($record, ModerationStatus::Approved))),
                     BulkAction::make('reject')->label('Reject selected')->icon('heroicon-o-x-mark')->color('danger')
                         ->requiresConfirmation()->deselectRecordsAfterCompletion()
-                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($r, ModerationStatus::Rejected))),
+                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($record, ModerationStatus::Rejected))),
                 ]),
             ]);
     }
