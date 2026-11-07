@@ -186,9 +186,9 @@
                     <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('home') }}">Home</a>
                     </li>
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a class="nav-link text-white" href="{{ route('letter.create') }}">Send Letter</a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
         </div>

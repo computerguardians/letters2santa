@@ -16,8 +16,8 @@ use Illuminate\Http\Request;
 
 
 Route::get('/', [LetterController::class, 'index'])->name('home');
-Route::get('/send-letter', [LetterController::class, 'create'])->name('letter.create');
-Route::post('/send-letter', [LetterController::class, 'store'])->name('letter.store');
+// Route::get('/send-letter', [LetterController::class, 'create'])->name('letter.create');
+// Route::post('/send-letter', [LetterController::class, 'store'])->name('letter.store');
 Route::get('/success', [LetterController::class, 'success'])->name('letter.success');
 
 /*
