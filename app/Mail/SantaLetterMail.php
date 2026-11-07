@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Letter;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -34,7 +35,11 @@ class SantaLetterMail extends Mailable
             default => "🛷 Merry Christmas {$child}, with love from Santa",
         };
 
-        return new Envelope(subject: $subject);
+        return new Envelope(
+            from: new Address(config('letters.mail.santa_from'), config('letters.mail.santa_name')),
+            replyTo: [new Address(config('letters.mail.reply_to'))],
+            subject: $subject,
+        );
     }
 
     public function content(): Content

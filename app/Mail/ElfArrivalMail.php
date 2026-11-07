@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Letter;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -17,6 +18,8 @@ class ElfArrivalMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(config('letters.mail.elf_from'), config('letters.mail.elf_name')),
+            replyTo: [new Address(config('letters.mail.reply_to'))],
             subject: "🎄 {$this->letter->child_first_name}'s letter has arrived at the North Pole!",
         );
     }

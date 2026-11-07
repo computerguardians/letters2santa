@@ -81,6 +81,15 @@ return [
     // Feature flag for the optional AI-personalised Santa reply (Phase 3+). Off by default.
     'ai_santa_reply' => (bool) env('AI_SANTA_REPLY', false),
 
+    // Sender identities. Both must be allowed by the SES IAM policy and exist as mailboxes/forwards.
+    'mail' => [
+        'elf_from' => env('MAIL_ELF_FROM', 'workshop@letters2santa.com'),
+        'elf_name' => env('MAIL_ELF_NAME', 'Elf Jingles, North Pole Mail Room'),
+        'santa_from' => env('MAIL_SANTA_FROM', 'santa@letters2santa.com'),
+        'santa_name' => env('MAIL_SANTA_NAME', 'Santa Claus'),
+        'reply_to' => env('MAIL_REPLY_TO', 'workshop@letters2santa.com'),
+    ],
+
     'business' => [
         'legal_name' => 'Seqron Technologies Pty Ltd',
         'abn' => '18 702 323 242',

@@ -26,6 +26,7 @@ class EmailContentTest extends TestCase
             $html = $mail->render();
 
             return $mail->hasTo($letter->parent_email)
+                && $mail->hasFrom('workshop@letters2santa.com')
                 && str_contains($html, 'Noah')
                 && str_contains($html, 'Geelong')
                 && str_contains($html, 'Hi Sam');
@@ -50,7 +51,9 @@ class EmailContentTest extends TestCase
             $attachments = $mail->attachments();
 
             return str_contains($html, 'Ava') && str_contains($html, 'Hobart') && str_contains($html, 'Being 6')
-                && count($attachments) === 1;
+                && count($attachments) === 1
+                && $mail->hasFrom('santa@letters2santa.com', 'Santa Claus')
+                && $mail->hasReplyTo('workshop@letters2santa.com');
         });
     }
 
