@@ -15,9 +15,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // First, check if the column is an ENUM and convert it
-        // This handles both ENUM and VARCHAR cases
-        DB::statement("ALTER TABLE `letters` MODIFY COLUMN `payment_status` VARCHAR(20) DEFAULT 'pending'");
+        // MySQL/MariaDB only: convert the ENUM to VARCHAR. SQLite (tests) stores it as a string already.
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'])) {
+            DB::statement("ALTER TABLE `letters` MODIFY COLUMN `payment_status` VARCHAR(20) DEFAULT 'pending'");
+        }
 
         // Add index for better query performance (optional but recommended)
         Schema::table('letters', function (Blueprint $table) {
@@ -33,9 +34,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert to original ENUM structure if needed
-        // Note: This will fail if there are 'free' values in the database
-        DB::statement("ALTER TABLE `letters` MODIFY COLUMN `payment_status` ENUM('pending', 'completed', 'failed') DEFAULT 'pending'");
+        if (in_array(DB::getDriverName(), ['mysql', 'mariadb'])) {
+            DB::statement("ALTER TABLE `letters` MODIFY COLUMN `payment_status` ENUM('pending', 'completed', 'failed') DEFAULT 'pending'");
+        }
 
         // Remove the index
         Schema::table('letters', function (Blueprint $table) {
@@ -50,7 +51,6 @@ return new class extends Migration
      */
     private function indexExists(string $table, string $index): bool
     {
-        $indexes = DB::select("SHOW INDEXES FROM `{$table}` WHERE Key_name = ?", [$index]);
-        return !empty($indexes);
+        return Schema::hasIndex($table, $index);
     }
 };

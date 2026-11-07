@@ -91,32 +91,6 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-/*
-|--------------------------------------------------------------------------
-| Test Endpoints (Remove in Production)
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/webhook/test', function() {
-    return response()->json([
-        'status' => 'ok',
-        'message' => 'Webhook route is accessible',
-        'timestamp' => now()
-    ]);
-});
-
-Route::post('/webhook/test', function(Request $request) {
-    \Log::info('Test webhook received', [
-        'headers' => $request->headers->all(),
-        'body' => $request->all()
-    ]);
-
-    return response()->json([
-        'status' => 'received',
-        'message' => 'Test webhook logged successfully'
-    ]);
-});
-
 Route::redirect('/register', '/login');
 
 
