@@ -20,7 +20,7 @@ class UsersTable
                 TextColumn::make('email')->searchable()->copyable(),
                 TextColumn::make('role')->badge(),
                 TextColumn::make('timezone'),
-                IconColumn::make('email_verified_at')->label('Verified')->boolean()->state(fn ($r) => (bool) $r->email_verified_at),
+                IconColumn::make('email_verified_at')->label('Verified')->boolean()->state(fn ($record) => (bool) $record->email_verified_at),
                 TextColumn::make('letters_count')->counts('letters')->label('Letters'),
                 TextColumn::make('created_at')->since()->sortable(),
             ])

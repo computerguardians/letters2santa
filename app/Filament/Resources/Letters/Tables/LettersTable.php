@@ -26,13 +26,13 @@ class LettersTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn ($q) => $q->with(['images', 'event']))
+            ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->with(['images', 'event']))
             ->columns([
                 ImageColumn::make('thumb')->label('')
                     ->state(fn ($record) => $record->images->first()?->thumbUrl(60))
                     ->square()->size(44)->defaultImageUrl(null),
                 TextColumn::make('child_first_name')->label('Child')->searchable()->weight('bold')
-                    ->description(fn ($r) => "{$r->town}, {$r->countryName()} {$r->countryFlag()}"),
+                    ->description(fn ($record) => "{$record->town}, {$record->countryName()} {$record->countryFlag()}"),
                 TextColumn::make('reference')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('parent_email')->searchable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('source')->badge(),
@@ -69,10 +69,10 @@ class LettersTable
                 BulkActionGroup::make([
                     BulkAction::make('approve')->label('Approve selected')->icon('heroicon-o-check')->color('success')
                         ->requiresConfirmation()->deselectRecordsAfterCompletion()
-                        ->action(fn (Collection $records) => $records->each(fn ($r) => LetterActions::setModeration($r, ModerationStatus::Approved))),
+                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($r, ModerationStatus::Approved))),
                     BulkAction::make('reject')->label('Reject selected')->icon('heroicon-o-x-mark')->color('danger')
                         ->requiresConfirmation()->deselectRecordsAfterCompletion()
-                        ->action(fn (Collection $records) => $records->each(fn ($r) => LetterActions::setModeration($r, ModerationStatus::Rejected))),
+                        ->action(fn (Collection $records) => $records->each(fn ($record) => LetterActions::setModeration($r, ModerationStatus::Rejected))),
                 ]),
             ]);
     }
