@@ -11,7 +11,10 @@ use App\Models\Payment;
 use App\Services\StripeGateway;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Mail\PartyPackReadyMail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
 
@@ -108,10 +111,10 @@ class StripeWebhookController extends Controller
             return;
         }
 
-        DB::transaction(function () use ($purchase, $session) {
+        $newlyPaid = DB::transaction(function () use ($purchase, $session) {
             $fresh = CreditPurchase::whereKey($purchase->id)->lockForUpdate()->first();
             if ($fresh->status === PaymentStatus::Paid) {
-                return;
+                return false;
             }
             $invoice = $session->invoice ?? null;
             $fresh->update([
@@ -125,7 +128,15 @@ class StripeWebhookController extends Controller
             $event = Event::whereKey($fresh->event_id)->lockForUpdate()->first();
             $event->increment('credits_purchased', $fresh->credits);
             $event->increment('credits_remaining', $fresh->credits);
+
+            return true;
         });
+
+        if ($newlyPaid) {
+            Cache::forget('party.screen.'.$purchase->event_id);
+            $purchase->refresh()->loadMissing('event.business.user');
+            Mail::to($purchase->event->business->user->email)->queue(new PartyPackReadyMail($purchase));
+        }
     }
 
     private function handleCheckoutFailed(Session $session): void

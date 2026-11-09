@@ -168,8 +168,8 @@
                             <h3 class="h5 mb-3" style="color: var(--christmas-green);">
                                 <i class="fas fa-building"></i> Business Information
                             </h3>
-                            <p class="mb-2"><strong>Company Name:</strong> Traxrift Pty Ltd</p>
-                            <p class="mb-2"><strong>ABN:</strong> 49 648 079 841</p>
+                            <p class="mb-2"><strong>Company Name:</strong> {{ config('letters.business.legal_name') }}</p>
+                            <p class="mb-2"><strong>ABN:</strong> {{ config('letters.business.abn') }}</p>
                             <p class="mb-2"><strong>Country:</strong> Australia</p>
                             <p class="mb-2"><strong>Email:</strong> <a href="mailto:workshop@letters2santa.com">workshop@letters2santa.com</a></p>
                             <p class="mb-0"><strong>Website:</strong> <a href="https://letters2santa.com">letters2santa.com</a></p>

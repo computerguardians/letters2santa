@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EventStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,6 +11,8 @@ use Illuminate\Support\Str;
 
 class Event extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'business_id', 'name', 'slug', 'event_date', 'town', 'country_code', 'logo_path',
         'credits_purchased', 'credits_remaining', 'status', 'qr_svg_path', 'qr_png_path', 'poster_path',
@@ -65,5 +68,15 @@ class Event extends Model
     public function publicUrl(): string
     {
         return route('party.show', $this->slug);
+    }
+
+    public function screenUrl(): string
+    {
+        return route('party.screen', $this->slug);
+    }
+
+    public function lettersSent(): int
+    {
+        return max(0, $this->credits_purchased - $this->credits_remaining);
     }
 }

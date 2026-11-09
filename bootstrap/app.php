@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'webhook/stripe',
         ]);
+        $middleware->alias([
+            'business' => \App\Http\Middleware\EnsureBusinessHost::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

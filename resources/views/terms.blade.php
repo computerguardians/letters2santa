@@ -11,7 +11,7 @@
                     <p class="text-muted mb-4"><strong>Last Updated:</strong> November {{ date('Y') }}</p>
 
                     <h2 class="h4 mt-4 mb-3" style="color: var(--christmas-green);">1. About Our Service</h2>
-                    <p>Letters2Santa is operated by <strong>Traxrift Pty Ltd</strong> (ABN: 49 648 079 841), an Australian company. By using our service, you agree to these terms and conditions.</p>
+                    <p>Letters2Santa is operated by <strong>{{ config('letters.business.legal_name') }}</strong> (ABN: {{ config('letters.business.abn') }}), an Australian company. By using our service, you agree to these terms and conditions.</p>
                     <p>Letters2Santa provides a digital personalised Christmas storybook service where parents can purchase a magical experience for their children, including:</p>
                     <ul>
                         <li>Personalised digital storybook (PDF format)</li>
@@ -92,7 +92,7 @@
 
                     <h2 class="h4 mt-4 mb-3" style="color: var(--christmas-green);">8. Intellectual Property</h2>
                     <ul>
-                        <li>All content, including stories, illustrations, and designs, are owned by Traxrift Pty Ltd</li>
+                        <li>All content, including stories, illustrations, and designs, are owned by {{ config('letters.business.legal_name') }}</li>
                         <li>You receive a personal, non-transferable license to use the e-book for personal, non-commercial use only</li>
                         <li>You may print the e-book for personal use</li>
                         <li>You may NOT resell, redistribute, or commercially exploit the content</li>
@@ -155,8 +155,8 @@
                     <p>These terms are governed by the laws of Australia. Any disputes shall be resolved in the courts of Victoria, Australia.</p>
 
                     <h2 class="h4 mt-4 mb-3" style="color: var(--christmas-green);">16. Contact Information</h2>
-                    <p><strong>Traxrift Pty Ltd</strong><br>
-                        ABN: 49 648 079 841<br>
+                    <p><strong>{{ config('letters.business.legal_name') }}</strong><br>
+                        ABN: {{ config('letters.business.abn') }}<br>
                         Email: <a href="mailto:workshop@letters2santa.com">workshop@letters2santa.com</a><br>
                         Website: <a href="https://letters2santa.com">letters2santa.com</a></p>
 

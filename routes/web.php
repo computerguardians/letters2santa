@@ -1,6 +1,11 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\Host\BusinessRegistrationController;
+use App\Http\Controllers\Host\CreditController;
+use App\Http\Controllers\Host\DashboardController;
+use App\Http\Controllers\Host\EventController;
+use App\Http\Controllers\PartyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LetterController;
 use App\Http\Controllers\ProfileController;
@@ -37,14 +42,51 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Breeze redirects here after login/registration.
-Route::get('/dashboard', fn () => redirect()->route('letters.index'))->middleware('auth')->name('dashboard');
+// ----- Party packs: public guest pages -----
+Route::get('/party-packs', [PartyController::class, 'landing'])->name('party.landing');
+Route::get('/party/{slug}', [PartyController::class, 'show'])->name('party.show');
+Route::post('/party/{slug}', [PartyController::class, 'store'])->middleware('throttle:party-submit')->name('party.store');
+Route::get('/party/{slug}/sent', [PartyController::class, 'sent'])->name('party.sent');
+Route::get('/party/{slug}/screen', [PartyController::class, 'screen'])->name('party.screen');
+Route::get('/party/{slug}/screen.json', [PartyController::class, 'screenJson'])->middleware('throttle:wall-feed')->name('party.screen.json');
+
+// ----- Party hosts (businesses, schools, councils, venues) -----
+Route::get('/host/register', [BusinessRegistrationController::class, 'create'])->name('host.register');
+Route::post('/host/register', [BusinessRegistrationController::class, 'store'])->middleware('throttle:10,1')->name('host.register.store');
+
+Route::middleware(['auth', 'verified', 'business'])->prefix('host')->name('host.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::patch('/business', [DashboardController::class, 'updateBusiness'])->name('business.update');
+
+    Route::get('/events/new', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::patch('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::post('/events/{event}/status', [EventController::class, 'status'])->name('events.status');
+    Route::get('/events/{event}/qr.svg', [EventController::class, 'qrSvg'])->name('events.qr.svg');
+    Route::get('/events/{event}/qr.png', [EventController::class, 'qrPng'])->name('events.qr.png');
+    Route::get('/events/{event}/poster.pdf', [EventController::class, 'poster'])->name('events.poster');
+    Route::get('/events/{event}/letters.csv', [EventController::class, 'export'])->name('events.export');
+
+    Route::post('/events/{event}/credits', [CreditController::class, 'store'])->name('credits.store');
+    Route::get('/events/{event}/credits/success', [CreditController::class, 'success'])->name('credits.success');
+    Route::get('/events/{event}/credits/cancel', [CreditController::class, 'cancel'])->name('credits.cancel');
+    Route::get('/events/{event}/credits/{purchase}/status', [CreditController::class, 'status'])->name('credits.status');
+});
+
+// Breeze redirects here after login/registration. Hosts go to their dashboard, parents to their letters.
+Route::get('/dashboard', function () {
+    return auth()->user()->business
+        ? redirect()->route('host.dashboard')
+        : redirect()->route('letters.index');
+})->middleware('auth')->name('dashboard');
 
 require __DIR__.'/auth.php';
 
 Route::get('/robots.txt', function () {
     $robots = app()->environment('production')
-        ? "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /letters\nDisallow: /checkout\n"
+        ? "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /letters\nDisallow: /checkout\nDisallow: /host\nDisallow: /party/\n"
         : "User-agent: *\nDisallow: /";
 
     return response($robots)->header('Content-Type', 'text/plain');

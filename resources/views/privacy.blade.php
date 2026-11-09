@@ -16,7 +16,7 @@
                     </div>
 
                     <h2 class="h4 mt-4 mb-3" style="color: var(--christmas-green);">1. Who We Are</h2>
-                    <p><strong>Letters2Santa</strong> is operated by <strong>Traxrift Pty Ltd</strong> (ABN: 49 648 079 841), registered in Australia.</p>
+                    <p><strong>Letters2Santa</strong> is operated by <strong>{{ config('letters.business.legal_name') }}</strong> (ABN: {{ config('letters.business.abn') }}), registered in Australia.</p>
                     <p><strong>Contact Us:</strong></p>
                     <ul>
                         <li>Email: <a href="mailto:workshop@letters2santa.com">workshop@letters2santa.com</a></li>
