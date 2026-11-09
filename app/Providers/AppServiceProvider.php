@@ -33,6 +33,9 @@ class AppServiceProvider extends ServiceProvider
             ];
         });
 
+        // Demo / setup-help enquiry form: per IP, generous enough for a venue sharing one connection.
+        RateLimiter::for('party-enquiry', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+
         RateLimiter::for('wall-feed', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

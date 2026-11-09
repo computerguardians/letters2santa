@@ -1,13 +1,14 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Host\BusinessRegistrationController;
 use App\Http\Controllers\Host\CreditController;
 use App\Http\Controllers\Host\DashboardController;
 use App\Http\Controllers\Host\EventController;
-use App\Http\Controllers\PartyController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LetterController;
+use App\Http\Controllers\PartyController;
+use App\Http\Controllers\PartyEnquiryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Webhooks\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,9 @@ Route::middleware('auth')->group(function () {
 
 // ----- Party packs: public guest pages -----
 Route::get('/party-packs', [PartyController::class, 'landing'])->name('party.landing');
+Route::get('/party-packs/enquire', [PartyEnquiryController::class, 'create'])->name('party.enquire');
+Route::post('/party-packs/enquire', [PartyEnquiryController::class, 'store'])->middleware('throttle:party-enquiry')->name('party.enquire.store');
+Route::get('/party-packs/enquire/thanks', [PartyEnquiryController::class, 'thanks'])->name('party.enquire.thanks');
 Route::get('/party/{slug}', [PartyController::class, 'show'])->name('party.show');
 Route::post('/party/{slug}', [PartyController::class, 'store'])->middleware('throttle:party-submit')->name('party.store');
 Route::get('/party/{slug}/sent', [PartyController::class, 'sent'])->name('party.sent');

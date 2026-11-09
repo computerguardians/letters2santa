@@ -9,12 +9,14 @@
         <p class="lead text-secondary">Businesses, schools, councils, clubs and venues prepay letter credits at <strong>A${{ number_format($creditPrice, 2) }} per letter</strong> instead of A${{ number_format($letterPrice, 2) }}. You get a printable QR poster. Guests scan it, write to Santa on their phone, and hear back from him on Christmas morning. Free for them, paid by you.</p>
         <div class="mt-4 d-flex flex-wrap gap-3">
             <a href="{{ auth()->check() ? route('host.register') : route('host.register') }}" class="btn btn-christmas btn-lg"><i class="fas fa-gift me-2"></i>Set up a party pack</a>
+            <a href="{{ route('party.enquire', ['type' => 'demo']) }}" class="btn btn-outline-christmas btn-lg"><i class="fas fa-video me-2"></i>Book a demo</a>
             @auth
-                @if(auth()->user()->business)<a href="{{ route('host.dashboard') }}" class="btn btn-outline-christmas btn-lg">Go to host dashboard</a>@endif
+                @if(auth()->user()->business)<a href="{{ route('host.dashboard') }}" class="btn btn-link btn-lg">Go to host dashboard</a>@endif
             @else
-                <a href="{{ route('login') }}" class="btn btn-outline-christmas btn-lg">Host log in</a>
+                <a href="{{ route('login') }}" class="btn btn-link btn-lg">Host log in</a>
             @endauth
         </div>
+        <p class="text-muted small mt-3 mb-0">Not sure where to start? <a href="{{ route('party.enquire', ['type' => 'setup']) }}">Ask us to set it up for you</a>, free of charge.</p>
     </div>
     <div class="col-lg-5 mt-4 mt-lg-0">
         <div class="card p-4">
@@ -57,6 +59,19 @@
             <div class="fs-5 text-muted"><span x-text="credits.toLocaleString()"></span> letters</div>
             <div class="display-4 fw-bold text-christmas-green">A$<span x-text="(credits * {{ $creditPrice }}).toFixed(2)"></span></div>
             <a href="{{ route('host.register') }}" class="btn btn-christmas mt-2">Get started</a>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 p-md-5 mb-5" style="background: linear-gradient(135deg, #e8f5e9, #ffffff);">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h2 class="text-christmas-green">Prefer a hand setting it up?</h2>
+            <p class="text-muted mb-0">Book a 15-minute video demo and we'll walk you through the poster, guest page and live screen. Or tell us about your event and we'll set up the whole pack for you, then send you a link to pay for the credits. Both are free.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0 d-grid d-md-block gap-2">
+            <a href="{{ route('party.enquire', ['type' => 'demo']) }}" class="btn btn-christmas"><i class="fas fa-video me-2"></i>Book a demo</a>
+            <a href="{{ route('party.enquire', ['type' => 'setup']) }}" class="btn btn-outline-christmas mt-md-2"><i class="fas fa-hands-helping me-2"></i>Set it up for me</a>
         </div>
     </div>
 </div>
