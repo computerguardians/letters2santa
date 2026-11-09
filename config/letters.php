@@ -63,6 +63,15 @@ return [
         'cache_seconds' => (int) env('WALL_CACHE_SECONDS', 5),
         'poll_seconds' => (int) env('WALL_POLL_SECONDS', 10),
         'feed_size' => (int) env('WALL_FEED_SIZE', 30),
+        // Public counter warm-up: shows a number that climbs from `floor` to `target` between `start` and `end`,
+        // and is replaced by the real count as soon as the real count overtakes it.
+        'seed_counter' => [
+            'enabled' => (bool) env('WALL_SEED_COUNTER', true),
+            'target' => (int) env('WALL_SEED_COUNTER_TARGET', 555),
+            'floor' => (int) env('WALL_SEED_COUNTER_FLOOR', 80),
+            'start' => env('WALL_SEED_COUNTER_START', '2026-11-01'),
+            'end' => env('WALL_SEED_COUNTER_END', '2026-12-20'),
+        ],
     ],
 
     // Delete images and letter text this many days after Santa day; keep anonymised counts.

@@ -29,6 +29,16 @@
     .counter-chip .dot { width: 10px; height: 10px; border-radius: 50%; background: #2BB673; box-shadow: 0 0 0 4px rgba(43,182,115,.25); }
     .counter-chip strong { font-family: 'Fraunces', serif; font-size: 1.25rem; letter-spacing: -.02em; }
 
+    /* Story */
+    .story { display: grid; grid-template-columns: 1.75fr 1fr; align-items: stretch; background: var(--warm-cream); border-radius: 28px; overflow: hidden; }
+    .story-picture { position: relative; min-height: 100%; }
+    .story-picture img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+    .story-text { padding: 2.5rem 2.5rem; display: flex; flex-direction: column; justify-content: center; }
+    .story-text h2 { margin-bottom: 1rem; }
+    .story-text p { color: var(--ink-soft); line-height: 1.6; font-size: 1rem; margin-bottom: .9rem; max-width: 50ch; }
+    .story-text p:last-of-type { margin-bottom: 0; }
+    .story-text .signoff { font-family: 'Fraunces', serif; font-style: italic; font-weight: 500; color: var(--christmas-green); font-size: 1.15rem; margin-top: 1.25rem; }
+
     /* Sections */
     .section { padding: clamp(3rem, 7vw, 6rem) 0 0; }
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
@@ -57,11 +67,41 @@
         .step:last-child { border-bottom: 0; }
         .party { grid-template-columns: 1fr; }
     }
+    @media (max-width: 1199.98px) {
+        .story { grid-template-columns: 1fr; }
+        .story-picture { aspect-ratio: 16 / 9; min-height: 0; }
+        .story-text { padding: 2rem 1.5rem 2.25rem; }
+    }
     @media (max-width: 575.98px) {
         .postmark { display: none; }
         .envelope { transform: rotate(-3deg); }
     }
 </style>
+@endsection
+
+@section('extra-js')
+<script>
+    // Counts up to the server number on load, then creeps upward slowly while the warm-up seed is in use.
+    function letterCounter(target, seeded, cap) {
+        return {
+            shown: Math.max(0, target - 40),
+            start() {
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { this.shown = target; return; }
+                const from = this.shown, t0 = performance.now(), dur = 1800;
+                const tick = (t) => {
+                    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+                    this.shown = Math.round(from + (target - from) * e);
+                    if (p < 1) requestAnimationFrame(tick); else if (seeded) this.creep();
+                };
+                requestAnimationFrame(tick);
+            },
+            creep() {
+                if (this.shown >= cap) return;
+                setTimeout(() => { this.shown++; this.creep(); }, 25000 + Math.random() * 50000);
+            },
+        };
+    }
+</script>
 @endsection
 
 @section('content')
@@ -92,11 +132,29 @@
             </div>
             <div class="seal">S</div>
         </div>
-        <a href="{{ Route::has('wall') ? route('wall') : '#' }}" class="counter-chip">
+        <a href="{{ Route::has('wall') ? route('wall') : '#' }}" class="counter-chip" x-data="letterCounter({{ (int) $letterCount }}, {{ $counterIsSeeded ? 'true' : 'false' }}, {{ (int) config('letters.wall.seed_counter.target') }})" x-init="start()">
             <span class="dot" aria-hidden="true"></span>
-            <strong x-data="{ n: {{ (int) $letterCount }} }" x-text="n.toLocaleString()">{{ number_format($letterCount) }}</strong>
-            <span>letters at the North Pole</span>
+            <strong x-text="shown.toLocaleString()">{{ number_format($letterCount) }}</strong>
+            <span>letters reached the North Pole this year</span>
         </a>
+    </div>
+</section>
+
+<section class="section">
+    <div class="story">
+        <div class="story-picture">
+            <picture>
+                <source type="image/webp" srcset="{{ asset('assets/images/hero-santa-postman-900.webp') }} 900w, {{ asset('assets/images/hero-santa-postman.webp') }} 1600w" sizes="(max-width: 991px) 100vw, 60vw">
+                <img src="{{ asset('assets/images/hero-santa-postman.jpg') }}" srcset="{{ asset('assets/images/hero-santa-postman-900.jpg') }} 900w, {{ asset('assets/images/hero-santa-postman.jpg') }} 1600w" sizes="(max-width: 991px) 100vw, 60vw" width="1600" height="900" alt="Santa smiling as a postman holds up a sealed letter in a snowy North Pole village" loading="lazy">
+            </picture>
+        </div>
+        <div class="story-text">
+            <h2>Every letter makes the same journey</h2>
+            <p>The moment you press send, your child's letter leaves the kitchen table and lands in the North Pole mail room, where Elf Jingles stamps it, logs it and sends you a note to say it arrived safely.</p>
+            <p>From there it goes out with the afternoon post. Santa reads every single one by the fire, the ones with drawings most of all, and keeps a list of who asked for what and who said thank you.</p>
+            <p>Then, on Christmas morning at seven o'clock your time, his reply arrives in your inbox with your child's name on it and a letter you can print and keep.</p>
+            <div class="signoff">Warm regards from the North Pole mail room</div>
+        </div>
     </div>
 </section>
 
