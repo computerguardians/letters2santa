@@ -2,10 +2,10 @@
 @section('title', 'Host dashboard - Letters2Santa')
 
 @section('content')
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 text-white">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <div>
-        <h1 class="mb-0" style="text-shadow:2px 2px 4px rgba(0,0,0,.3);">{{ $business->name }}</h1>
-        <div class="opacity-75">Host dashboard</div>
+        <h1 class="mb-0">{{ $business->name }}</h1>
+        <div class="text-secondary">Host dashboard</div>
     </div>
     <a href="{{ route('host.events.create') }}" class="btn btn-christmas"><i class="fas fa-plus me-2"></i>Create event</a>
 </div>

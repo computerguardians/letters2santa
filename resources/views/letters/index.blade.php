@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-    <h1 class="mb-0" style="text-shadow:2px 2px 4px rgba(0,0,0,.3);">My letters</h1>
+    <h1 class="mb-0">My letters</h1>
     <div class="d-flex gap-2">
         @if($unpaidCount)<a href="{{ route('checkout.show') }}" class="btn btn-warning rounded-pill fw-semibold">Pay for {{ $unpaidCount }} unpaid {{ Str::plural('letter', $unpaidCount) }}</a>@endif
         <a href="{{ route('letters.create') }}" class="btn btn-christmas"><i class="fas fa-plus me-2"></i>New letter</a>

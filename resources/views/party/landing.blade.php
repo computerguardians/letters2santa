@@ -3,10 +3,10 @@
 @section('meta_description', 'Prepay letters to Santa at A$' . number_format($creditPrice, 2) . ' each, get a QR poster for your Christmas party, and let guests send letters free.')
 
 @section('content')
-<div class="row align-items-center mb-5 text-white">
+<div class="row align-items-center mb-5">
     <div class="col-lg-7">
-        <h1 class="display-4" style="text-shadow:2px 2px 4px rgba(0,0,0,.3);">Give every child at your party a letter to Santa</h1>
-        <p class="lead">Businesses, schools, councils, clubs and venues prepay letter credits at <strong>A${{ number_format($creditPrice, 2) }} per letter</strong> instead of A${{ number_format($letterPrice, 2) }}. You get a printable QR poster. Guests scan it, write to Santa on their phone, and hear back from him on Christmas morning. Free for them, paid by you.</p>
+        <h1 class="display-4 fw-bold">Give every child at your party a letter to Santa</h1>
+        <p class="lead text-secondary">Businesses, schools, councils, clubs and venues prepay letter credits at <strong>A${{ number_format($creditPrice, 2) }} per letter</strong> instead of A${{ number_format($letterPrice, 2) }}. You get a printable QR poster. Guests scan it, write to Santa on their phone, and hear back from him on Christmas morning. Free for them, paid by you.</p>
         <div class="mt-4 d-flex flex-wrap gap-3">
             <a href="{{ auth()->check() ? route('host.register') : route('host.register') }}" class="btn btn-christmas btn-lg"><i class="fas fa-gift me-2"></i>Set up a party pack</a>
             @auth

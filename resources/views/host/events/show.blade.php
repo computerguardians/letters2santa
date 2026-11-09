@@ -2,11 +2,11 @@
 @section('title', $event->name . ' - Host dashboard - Letters2Santa')
 
 @section('content')
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 text-white">
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <div>
-        <div class="small"><a href="{{ route('host.dashboard') }}" class="text-white-50 text-decoration-none">&larr; All events</a></div>
-        <h1 class="mb-0" style="text-shadow:2px 2px 4px rgba(0,0,0,.3);">{{ $event->name }}</h1>
-        <div class="opacity-75">{{ $event->town }}, {{ \App\Support\Countries::name($event->country_code) }}@if($event->event_date) · {{ $event->event_date->format('l j F Y') }}@endif
+        <div class="small"><a href="{{ route('host.dashboard') }}" class="text-secondary text-decoration-none">&larr; All events</a></div>
+        <h1 class="mb-0">{{ $event->name }}</h1>
+        <div class="text-secondary">{{ $event->town }}, {{ \App\Support\Countries::name($event->country_code) }}@if($event->event_date) · {{ $event->event_date->format('l j F Y') }}@endif
             · <span class="badge rounded-pill {{ match($event->status->value) { 'active' => 'bg-success', 'paused' => 'bg-warning text-dark', default => 'bg-secondary' } }}">{{ $event->status->getLabel() }}</span></div>
     </div>
     <div class="d-flex gap-2">
